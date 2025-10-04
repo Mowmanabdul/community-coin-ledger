@@ -17,30 +17,14 @@ import NotFound from "./pages/NotFound";
 const queryClient = new QueryClient();
 
 const App = () => {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [hasSeenOnboarding, setHasSeenOnboarding] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
+  // Check auth status directly from localStorage for each route
+  const checkAuth = () => {
+    return !!localStorage.getItem("cl_auth");
+  };
 
-  useEffect(() => {
-    // Check authentication and onboarding status
-    const authData = localStorage.getItem("cl_auth");
-    const onboardingComplete = localStorage.getItem("cl_onboarding_complete");
-    
-    setIsAuthenticated(!!authData);
-    setHasSeenOnboarding(!!onboardingComplete);
-    setIsLoading(false);
-  }, []);
-
-  if (isLoading) {
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-background">
-        <div className="text-center">
-          <div className="h-12 w-12 animate-spin rounded-full border-4 border-primary border-t-transparent mx-auto mb-4" />
-          <p className="text-muted-foreground">Loading...</p>
-        </div>
-      </div>
-    );
-  }
+  const checkOnboarding = () => {
+    return !!localStorage.getItem("cl_onboarding_complete");
+  };
 
   return (
     <QueryClientProvider client={queryClient}>
@@ -52,31 +36,31 @@ const App = () => {
             <Route path="/" element={<Index />} />
             <Route 
               path="/onboarding" 
-              element={hasSeenOnboarding ? <Navigate to="/auth" /> : <Onboarding />} 
+              element={checkOnboarding() ? <Navigate to="/auth" /> : <Onboarding />} 
             />
             <Route 
               path="/auth" 
-              element={isAuthenticated ? <Navigate to="/customers" /> : <Auth />} 
+              element={checkAuth() ? <Navigate to="/customers" /> : <Auth />} 
             />
             <Route 
               path="/customers" 
-              element={isAuthenticated ? <Customers /> : <Navigate to="/auth" />} 
+              element={checkAuth() ? <Customers /> : <Navigate to="/auth" />} 
             />
             <Route 
               path="/customer/:id" 
-              element={isAuthenticated ? <CustomerDetails /> : <Navigate to="/auth" />} 
+              element={checkAuth() ? <CustomerDetails /> : <Navigate to="/auth" />} 
             />
             <Route 
               path="/add-customer" 
-              element={isAuthenticated ? <AddCustomer /> : <Navigate to="/auth" />} 
+              element={checkAuth() ? <AddCustomer /> : <Navigate to="/auth" />} 
             />
             <Route 
               path="/customer/:id/add-transaction/:type" 
-              element={isAuthenticated ? <AddTransaction /> : <Navigate to="/auth" />} 
+              element={checkAuth() ? <AddTransaction /> : <Navigate to="/auth" />} 
             />
             <Route 
               path="/dashboard" 
-              element={isAuthenticated ? <Dashboard /> : <Navigate to="/auth" />} 
+              element={checkAuth() ? <Dashboard /> : <Navigate to="/auth" />} 
             />
             <Route path="*" element={<NotFound />} />
           </Routes>
